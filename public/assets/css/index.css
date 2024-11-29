@@ -1,0 +1,124 @@
+:root {
+    --primary-color: #970000;
+    --text-color: #ffffff;
+    --second-text-color: #000000;
+    --hover-color: #7c0000;
+    --background-color: #ffffff;
+    --custom-color: #dfdfdf;
+    --alternative-color: #ffdcbc;
+    --alternative-text: #ff8f26;
+}
+
+.wrapper {
+    padding: 25px;
+    box-sizing: border-box;
+}
+
+.card {
+    background-color: var(--background-color);
+    border-radius: 17px;
+    border: none;
+    box-shadow: 0 0 4px rgba(0, 0, 0, 0.2);
+}
+
+.alternative-btn {
+    background-color: var(--alternative-text);
+}
+
+.alternative-btn:hover {
+}
+
+.alternative-btn {
+    background-color: var(--alternative-text);
+    transition: 0.3s ease;
+}
+
+.alternative-btn:hover {
+    background: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)),
+        var(--alternative-text);
+    color: var(--text-color);
+}
+
+.primary-background {
+    background-color: var(--primary-color);
+    color: var(--text-color);
+}
+
+.alternative-background {
+    background-color: var(--alternative-color);
+}
+
+.btn.alternative-background:hover {
+    background: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)),
+        var(--alternative-color);
+}
+
+.alternative-text {
+    color: var(--alternative-text);
+}
+
+.primary-text {
+    color: var(--primary-color);
+    font-weight: bold;
+}
+
+.text {
+    color: var(--text-color);
+}
+
+.primary-button {
+    background-color: var(--primary-color);
+    color: var(--text-color);
+}
+
+.primary-button:hover {
+    background-color: var(--hover-color);
+    color: var(--text-color);
+}
+
+.answer {
+    color: var(--second-text-color);
+    background: var(--custom-color);
+}
+
+.answer.choices {
+    background-color: var(--primary-color);
+    color: var(--text-color);
+}
+
+.grid-soal {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 10px;
+    max-height: 60vh;
+    overflow-y: auto;
+}
+
+.grid-soal::-webkit-scrollbar {
+    width: 0.5em;
+}
+
+.grid-soal::-webkit-scrollbar-thumb {
+    background-color: var(--custom-color);
+    border-radius: 10px;
+}
+
+.grid-soal::-webkit-scrollbar-track {
+    background-color: var(--background-color);
+}
+.soal {
+    color: var(--second-text-color);
+    border-radius: 2px;
+    padding: 10px 0;
+    border: solid 1px var(--custom-color);
+}
+
+.soal.alternative-background {
+    background-color: var(--alternative-color);
+    color: var(--text-color);
+}
+
+.soal.primary-background {
+    background-color: var(--primary-color);
+    color: var(--text-color);
+}
