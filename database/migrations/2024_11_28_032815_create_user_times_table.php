@@ -17,6 +17,7 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->foreign('tryout_id')->references('id')->on('tryouts')->onDelete('cascade');
             $table->integer('sisa_waktu')->nullable();
+            $table->timestamp('waktu_habis')->nullable();
             $table->timestamps();
         });
     }

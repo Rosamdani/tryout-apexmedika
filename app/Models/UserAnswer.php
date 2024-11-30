@@ -23,6 +23,7 @@ class UserAnswer extends Model
         'id',
         'user_id',
         'soal_id',
+        'status',
         'jawaban',
     ];
 

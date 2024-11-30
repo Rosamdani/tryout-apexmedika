@@ -2,11 +2,13 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 
 class SoalTryout extends Model
 {
+    use HasFactory;
     protected $keyType = 'string';
     public $incrementing = false;
 
@@ -47,5 +49,10 @@ class SoalTryout extends Model
     public function kompetensi()
     {
         return $this->belongsTo(KompetensiTryouts::class);
+    }
+
+    public function userAnswer()
+    {
+        return $this->hasOne(UserAnswer::class, 'soal_id', 'id');
     }
 }

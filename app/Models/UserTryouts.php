@@ -24,6 +24,7 @@ class UserTryouts extends Model
         'user_id',
         'tryout_id',
         'nilai',
+        'rank',
         'status',
         'waktu',
         'catatan',

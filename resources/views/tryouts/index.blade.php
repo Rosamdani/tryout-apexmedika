@@ -112,14 +112,6 @@
         </div>
     </div>
 </div>
-<div id="loading-overlay"
-    style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(255, 255, 255, 0.8); z-index: 9999; text-align: center; justify-content: center; align-items: center;">
-    <div class="d-flex h-100 justify-content-center align-items-center">
-        <div class="spinner-border" role="status" style="width: 3rem; height: 3rem;">
-            <span class="visually-hidden">Loading...</span>
-        </div>
-    </div>
-</div>
 @endsection
 @section('script')
 <script>
@@ -155,9 +147,9 @@
                         $('#tryout_belum_dikerjakan').empty();
                         $('#tryout_sudah_dikerjakan').empty();
 
-                        if (response.data.belum_dikerjakan && response.data.belum_dikerjakan.length > 0) {
-                            $('#text_belum_dikerjakan').text(response.data.belum_dikerjakan.length);
-                            response.data.belum_dikerjakan.forEach(function(tryout) {
+                        if (response.data.not_started && response.data.not_started.length > 0) {
+                            $('#text_belum_dikerjakan').text(response.data.not_started.length);
+                            response.data.not_started.forEach(function(tryout) {
                                 $('#tryout_belum_dikerjakan').append(
                                     get_container_tryouts(tryout.nama, tryout.tanggal, tryout.id,
                                         tryout.status)
@@ -172,9 +164,9 @@
                                 `);
                         }
 
-                        if (response.data.sudah_dikerjakan && response.data.sudah_dikerjakan.length > 0) {
-                            $('#text_dikerjakan').text(response.data.sudah_dikerjakan.length);
-                            response.data.sudah_dikerjakan.forEach(function(tryout) {
+                        if (response.data.started && response.data.started.length > 0) {
+                            $('#text_dikerjakan').text(response.data.started.length);
+                            response.data.started.forEach(function(tryout) {
                                 $('#tryout_sudah_dikerjakan').append(
                                     get_container_tryouts(tryout.nama, tryout.tanggal, tryout.id,
                                         tryout.status)
@@ -196,13 +188,7 @@
             });
         }
 
-        function showLoading() {
-            $('#loading-overlay').show();
-        }
 
-        function hideLoading() {
-            $('#loading-overlay').hide();
-        }
 
         function get_container_tryouts(nama, tanggal, id, status) {
             // Berikan default jika tanggal null
@@ -213,10 +199,10 @@
                     <div class="col-4">${nama}</div>
                     <div class="col-4">${tanggal}</div>
                     <div class="col-4">
-                        <a href="${status === 'sudah_dikerjakan' ? '/tryout/hasil/' + id : '/tryout/show/' + id}"
+                        <a href="${status === 'finished' ? '/tryout/hasil/' + id : '/tryout/show/' + id}"
                         class="btn btn-sm btn-primary">
-                            ${status === 'belum_dikerjakan' ? 'Kerjakan' :
-                            (status === 'paused' ? 'Lanjutkan' : 'Hasil')}
+                            ${status === 'not_started' ? 'Kerjakan' :
+                            (status === 'paused' ? 'Lanjutkan' : (status === 'finished' ? 'Hasil' : (status === 'started' ? 'Lanjutkan' : 'Kerjakan'))) }
                         </a>
                     </div>
                 </div>

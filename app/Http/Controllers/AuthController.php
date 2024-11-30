@@ -26,7 +26,7 @@ class AuthController extends Controller
 
         if (Auth::attempt($request->only('email', 'password'))) {
             $tryout = Tryouts::first();
-            return redirect()->route('tryouts-tes', ['id' => $tryout->id]);
+            return redirect()->route('tryout.index');
         } else {
             return redirect()->back()->with('error', 'Email atau password salah');
         }

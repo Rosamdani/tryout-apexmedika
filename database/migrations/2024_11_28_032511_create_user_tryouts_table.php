@@ -16,9 +16,10 @@ return new class extends Migration
             $table->string('tryout_id', 36);
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->foreign('tryout_id')->references('id')->on('tryouts')->onDelete('cascade');
-            $table->integer('nilai');
-            $table->string('status');
-            $table->integer('waktu');
+            $table->integer('nilai')->nullable();
+            $table->integer('rank')->nullable();
+            $table->enum('status', ['not_started', 'started', 'paused', 'finished'])->nullable();
+            $table->integer('waktu')->nullable();
             $table->text('catatan')->nullable();
             $table->timestamps();
         });

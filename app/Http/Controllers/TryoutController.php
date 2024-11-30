@@ -23,7 +23,7 @@ class TryoutController extends Controller
     {
         try {
             $batch_end_date = BatchTryouts::find($request->batch)->end_date;
-            $tryouts = Tryouts::select(['tryouts.id', 'tryouts.nama', 'tryouts.tanggal'])
+            $tryouts = Tryouts::select(['tryouts.id', 'tryouts.nama', 'tryouts.tanggal', 'user_tryouts.status as user_status'])
                 ->leftJoin('user_tryouts', function ($join) {
                     $join->on('tryouts.id', '=', 'user_tryouts.tryout_id')
                         ->where('user_tryouts.user_id', '=', Auth::id());
@@ -31,8 +31,8 @@ class TryoutController extends Controller
                 ->where('tryouts.batch_id', $request->batch)
                 ->get()
                 ->map(function ($tryout) {
-                    // Tambahkan status berdasarkan data dari user_tryouts
-                    $tryout->status = $tryout->status ?? 'belum_dikerjakan'; // Default jika tidak ditemukan
+                    // Tentukan status, jika user_tryouts.status null, set ke 'not_started'
+                    $tryout->status = $tryout->user_status ?? 'not_started'; // Default jika tidak ditemukan atau null
                     return $tryout;
                 })
                 ->groupBy('status'); // Kelompokkan berdasarkan status
@@ -47,6 +47,16 @@ class TryoutController extends Controller
     {
         try {
             $tryout = Tryouts::findOrFail($id);
+            UserTryouts::updateOrCreate(
+                [
+                    'tryout_id' => $tryout->id,
+                    'user_id' => Auth::user()->id
+                ],
+                [
+                    'status' => 'started'
+                ]
+            );
+
             return view('tryouts.tryout-tes', compact('tryout'));
         } catch (\Exception $e) {
             return response()->json(['status' => 'error', 'message' => 'Terjadi kesalahan']);
@@ -66,12 +76,12 @@ class TryoutController extends Controller
     public function getQuestions(Request $request)
     {
         try {
-            $soal = SoalTryout::select(['id', 'nomor', 'soal', 'pilihan_a', 'pilihan_b', 'pilihan_c', 'pilihan_d', 'pilihan_e'])->where('tryout_id', $request->id_tryout)
+            $soal = SoalTryout::with('userAnswer')->select(['id', 'nomor', 'soal', 'pilihan_a', 'pilihan_b', 'pilihan_c', 'pilihan_d', 'pilihan_e'])->where('tryout_id', $request->id_tryout)
                 ->orderBy('nomor', 'asc')
                 ->get();
             return response()->json(['status' => 'success', 'message' => 'Data berhasil diambil', 'data' => $soal]);
         } catch (\Exception $e) {
-            return response()->json(['status' => 'error', 'message' => 'Terjadi kesalahan']);
+            return response()->json(['status' => 'error', 'message' => 'Terjadi kesalahan ' . $e->getMessage()]);
         }
     }
 
@@ -80,20 +90,21 @@ class TryoutController extends Controller
         try {
             UserAnswer::updateOrCreate(
                 ['user_id' => Auth::user()->id, 'soal_id' => $request->id],
-                ['jawaban' => $request->pilihan, 'status' => 'sudah_dijawab']
+                ['jawaban' => $request->pilihan, 'status' => $request->status]
             );
+
 
             return response()->json(['message' => 'Answer saved successfully.']);
         } catch (\Throwable $th) {
-            return response()->json(['error' => 'Failed to save answer.'], 500);
+            return response()->json(['error' => 'Failed to save answer. ' . $th->getMessage()], 500);
         }
     }
 
-    public function saveEndTime(Request $request)
+    public function saveTimeLeft(Request $request)
     {
         $request->validate([
             'id_tryout' => 'required|exists:tryouts,id',
-            'end_time' => 'required|date',
+            'sisa_waktu' => 'required|numeric',
         ]);
 
         // Temukan UserTryouts berdasarkan id_tryout dan user_id
@@ -105,18 +116,13 @@ class TryoutController extends Controller
             return response()->json(['status' => 'error', 'message' => 'User tryout not found'], 404);
         }
 
-        // Jika end_time masih null, simpan end_time baru
-        if ($tryout->end_time === null) {
-            $tryout->end_time = $request->end_time;
-            $tryout->save();
+        $tryout->sisa_waktu = $request->sisa_waktu;
+        $tryout->save();
 
-            return response()->json(['status' => 'success', 'message' => 'End time saved successfully']);
-        }
-
-        return response()->json(['status' => 'error', 'message' => 'End time already set'], 400);
+        return response()->json(['status' => 'success', 'message' => 'Time updated successfully']);
     }
 
-    public function getEndTime(Request $request)
+    public function getTimeLeft(Request $request)
     {
         $request->validate([
             'id_tryout' => 'required|exists:tryouts,id',
@@ -127,9 +133,21 @@ class TryoutController extends Controller
             ->first();
 
         if (!$user_tryout) {
-            return response()->json(['status' => 'error', 'message' => 'User tryout not found'], 404);
+            $tryout = Tryouts::find($request->id_tryout);
+
+            if (!$tryout) {
+                return response()->json(['status' => 'error', 'message' => 'Tryout not found'], 404);
+            }
+
+            $user_tryout = new UserTime();
+            $user_tryout->user_id = Auth::user()->id;
+            $user_tryout->tryout_id = $request->id_tryout;
+            $user_tryout->sisa_waktu = $tryout->waktu;
+            $user_tryout->save();
+
+            return response()->json(['status' => 'success', 'message' => 'User tryout created successfully', 'sisa_waktu' => $user_tryout->sisa_waktu]);
         }
 
-        return response()->json(['end_time' => $user_tryout->end_time]);
+        return response()->json(['status' => 'success', 'message' => 'Timeleft get successfully', 'sisa_waktu' => $user_tryout->sisa_waktu]);
     }
 }

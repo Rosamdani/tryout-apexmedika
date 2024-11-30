@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('batch_id', 36);
             $table->foreign('batch_id')->references('id')->on('batch_tryouts')->onDelete('cascade');
             $table->string('nama');
-            $table->enum('status', ['not_started', 'started', 'finished'])->default('not_started');
+            $table->date('tanggal');
             $table->string('waktu');
             $table->timestamps();
         });
