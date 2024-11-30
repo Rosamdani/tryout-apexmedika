@@ -66,7 +66,7 @@ class TryoutController extends Controller
     public function getQuestions(Request $request)
     {
         try {
-            $soal = SoalTryout::select(['nomor', 'soal', 'pilihan_a', 'pilihan_b', 'pilihan_c', 'pilihan_d', 'pilihan_e'])->where('tryout_id', $request->id_tryout)
+            $soal = SoalTryout::select(['id', 'nomor', 'soal', 'pilihan_a', 'pilihan_b', 'pilihan_c', 'pilihan_d', 'pilihan_e'])->where('tryout_id', $request->id_tryout)
                 ->orderBy('nomor', 'asc')
                 ->get();
             return response()->json(['status' => 'success', 'message' => 'Data berhasil diambil', 'data' => $soal]);
@@ -75,12 +75,12 @@ class TryoutController extends Controller
         }
     }
 
-    public function setAnswer(Request $request)
+    public function saveAnswer(Request $request)
     {
         try {
             UserAnswer::updateOrCreate(
-                ['user_id' => Auth::user()->id, 'soal_id' => $request->id_soal],
-                ['jawaban' => $request->jawaban]
+                ['user_id' => Auth::user()->id, 'soal_id' => $request->id],
+                ['jawaban' => $request->pilihan, 'status' => 'sudah_dijawab']
             );
 
             return response()->json(['message' => 'Answer saved successfully.']);

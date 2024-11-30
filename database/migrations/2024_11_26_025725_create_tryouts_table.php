@@ -13,7 +13,8 @@ return new class extends Migration
     {
         Schema::create('tryouts', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->foreignId('batch_id')->constrained('batch_tryouts')->onDelete('cascade');
+            $table->string('batch_id', 36);
+            $table->foreign('batch_id')->references('id')->on('batch_tryouts')->onDelete('cascade');
             $table->string('nama');
             $table->enum('status', ['not_started', 'started', 'finished'])->default('not_started');
             $table->string('waktu');

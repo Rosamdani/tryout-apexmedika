@@ -52,19 +52,16 @@
                 <button class="btn text-secondary ">Soal Masih Ragu-ragu</button>
                 <button class="btn text-secondary ">Soal Belum Dijawab</button>
             </div>
-            <div style="display: grid; grid-template-columns: repeat(20, minmax(0, 1fr)); gap: 0.5rem;">
-                @for($i = 1; $i <= 150; $i++) <div
-                    class="border  if ($i == 1) echo 'bg-info text-white';  ?> rounded p-2 text-center">
-                    {{ $i }}</div>
-            @endfor
+            <div id="question-grid"
+                style="display: grid; grid-template-columns: repeat(20, minmax(0, 1fr)); gap: 0.5rem;">
+
+            </div>
         </div>
     </div>
-</div>
-</div>
-@endsection
-@section('script')
-<script>
-    $(document).ready(function () {
+    @endsection
+    @section('script')
+    <script>
+        $(document).ready(function () {
         let questions = [];
         let currentQuestionIndex = 0;
 
@@ -87,41 +84,41 @@
             const question = questions[index];
             $("#question-content").html(`
                 <div class="card-header bg-white d-flex justify-content-between align-items-center">
-                    <h6 class="">Nomor <span id="nomor_soal">${question.nomor}</span></h6>
-                    <div class="alert ${question.status || question.status == 'dijawab' || question.status == 'ragu-ragu' ? 'd-block' : 'd-none'} alert-info py-1 px-2 my-2" id="status_soal" role="alert">
-                        ${question.status == 'dijawab' ? 'Sudah dijawab' : 'Belum dijawab'}
+                    <h6 class="fw-bold">Nomor <span id="nomor_soal">${question.nomor}</span></h6>
+                    <div id="status_soal-${index}" class="alert ${question.status == 'sudah_dijawab' ? 'alert-info' : (question.status == 'belum_dijawab' ? 'alert-light' : (question.status == 'ragu-ragu' ? 'alert-warning' : 'alert-danger')) }  py-1 px-2 my-2" id="status_soal" role="alert">
+                        ${question.status == 'sudah_dijawab' ? 'Sudah dijawab' : 'Belum dijawab'}
                     </div>
 
                 </div>
                 <div class="card-body">
-                    <p style="font-size: 12px;" id="soal_tryout">${question.soal}</p>
+                    <small style="font-size: 14px;" id="soal_tryout">${question.soal}</small>
                     <div class="form-check">
                         <input class="form-check-input" type="radio" name="answer1" id="answer1A" value="A">
-                        <label class="form-check-label" for="answer1A">
+                        <label class="form-check-label setAnswer" data-pilihan="a" data-id="${question.id}" data-index="${index}"  style="font-size: 14px;" for="answer1A">
                             A. ${question.pilihan_a}
                         </label>
                     </div>
                     <div class="form-check">
                         <input class="form-check-input" type="radio" name="answer1" id="answer1B" value="B">
-                        <label class="form-check-label" for="answer1B">
+                        <label class="form-check-label setAnswer" data-pilihan="b" data-id="${question.id}" data-index="${index}"  style="font-size: 14px;" for="answer1B">
                             B. ${question.pilihan_b}
                         </label>
                     </div>
                     <div class="form-check">
                         <input class="form-check-input" type="radio" name="answer1" id="answer1C" value="C">
-                        <label class="form-check-label" for="answer1C">
+                        <label class="form-check-label setAnswer" data-pilihan="c" data-id="${question.id}" data-index="${index}"  style="font-size: 14px;" for="answer1C">
                             C. ${question.pilihan_c}
                         </label>
                     </div>
                     <div class="form-check">
                         <input class="form-check-input" type="radio" name="answer1" id="answer1D" value="D">
-                        <label class="form-check-label" for="answer1D">
+                        <label class="form-check-label setAnswer" data-pilihan="d" data-id="${question.id}" data-index="${index}"  style="font-size: 14px;" for="answer1D">
                             D. ${question.pilihan_d}
                         </label>
                     </div>
                     <div class="form-check">
                         <input class="form-check-input" type="radio" name="answer1" id="answer1E" value="E">
-                        <label class="form-check-label" for="answer1E">
+                        <label class="form-check-label setAnswer" data-pilihan="e" data-id="${question.id}" data-index="${index}"  style="font-size: 14px;" for="answer1E">
                             E. ${question.pilihan_e}
                         </label>
                     </div>
@@ -132,7 +129,7 @@
                     <div class="form-check col-6 d-flex justify-content-end gap-2">
                         <input style="cursor: pointer; border: solid 1px #595959FF" class="form-check-input"
                             type="checkbox" id="ragu" name="ragu">
-                        <label style="cursor: pointer;" class="form-check-label" for="ragu">
+                        <label onclick="submitRagu(${question.id}, ${index})" style="cursor: pointer;" class="form-check-label" for="ragu">
                             Ragu-ragu
                         </label>
                     </div>
@@ -152,33 +149,66 @@
             $("#prev-btn").prop("disabled", index === 0);
             $("#next-btn").prop("disabled", index === questions.length - 1);
 
-            // Highlight nomor soal aktif
-            $(".question-number").removeClass("active");
-            $(`#question-number-${index}`).addClass("active");
+            $(".question-number").removeClass("bg-warning-subtle border-warning");
+            $(`#question-number-${index}`).addClass("bg-warning-subtle border-warning");
+
+
         }
 
-        // function populateQuestionGrid() {
-        //     $("#question-grid").html(
-        //         questions.map((_, index) => `
-        //             <button id="question-number-${index}" class="question-number btn btn-outline-primary">
-        //                 ${index + 1}
-        //             </button>
-        //         `).join("")
-        //     );
-        // }
+        $(document).on('click', '.setAnswer', function () {
+            const index = $(this).data('index');
+            const pilihan = $(this).data('pilihan');
+            const id = $(this).data('id');
 
-        $("#prev-btn").click(function () {
+            $('#status_soal-'+index).removeClass('alert-info alert-light alert-warning alert-danger');
+            $('#status_soal-'+index).addClass('alert-info');
+            $('#status_soal-'+index).html('Sudah dijawab');
+
+            $.ajax({
+                url: "{{ route('tryout.saveAnswer') }}",
+                method: 'POST',
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    id: id,
+                    pilihan: pilihan,
+                },
+                success: function (response) {
+                    console.log(response);
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        })
+
+        function populateQuestionGrid() {
+            $("#question-grid").html(
+                questions.map((question, index) => `
+                    <div id="question-number-${index}" style="cursor: pointer;" class="border question-number  rounded p-2 text-center">
+                        ${question.nomor}
+                    </div>
+                `).join("")
+            );
+        }
+
+        $(document).on('click',"#prev-btn", function () {
             if (currentQuestionIndex > 0) {
                 currentQuestionIndex--;
                 displayQuestion(currentQuestionIndex);
             }
         });
 
-        $("#next-btn").click(function () {
+        $(document).on('click', "#next-btn", function () {
             if (currentQuestionIndex < questions.length - 1) {
                 currentQuestionIndex++;
                 displayQuestion(currentQuestionIndex);
             }
+        });
+
+        $(document).on('click', ".question-number", function () {
+            const index = $(this).text() - 1;
+            currentQuestionIndex = index;
+            displayQuestion(currentQuestionIndex);
         });
 
         $("#question-grid").on("click", ".question-number", function () {
@@ -188,10 +218,11 @@
         });
 
         getQuestion().then(() => {
-            // populateQuestionGrid();
+            populateQuestionGrid();
             displayQuestion(currentQuestionIndex);
         });
+
     });
 
-</script>
-@endsection
+    </script>
+    @endsection

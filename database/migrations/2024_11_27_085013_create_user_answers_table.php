@@ -13,8 +13,9 @@ return new class extends Migration
     {
         Schema::create('user_answers', function (Blueprint $table) {
             $table->uuid('id')->primary();
+            $table->string('soal_id', 36);
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
-            $table->foreignId('soal_id')->constrained('soal_tryouts')->onDelete('cascade');
+            $table->foreign('soal_id')->references('id')->on('soal_tryouts')->onDelete('cascade');
             $table->text('jawaban');
             $table->timestamps();
         });

@@ -13,9 +13,12 @@ return new class extends Migration
     {
         Schema::create('soal_tryouts', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->foreignId('tryout_id')->constrained('tryouts')->onDelete('cascade');
-            $table->foreignId('bidang_id')->constrained('bidang_tryouts')->onDelete('cascade');
-            $table->foreignId('kompetensi_id')->constrained('kompetensi_tryouts')->onDelete('cascade');
+            $table->string('tryout_id', 36);
+            $table->string('bidang_id', 36);
+            $table->string('kompetensi_id', 36);
+            $table->foreign('tryout_id')->references('id')->on('tryouts')->onDelete('cascade');
+            $table->foreign('bidang_id')->references('id')->on('bidang_tryouts')->onDelete('cascade');
+            $table->foreign('kompetensi_id')->references('id')->on('kompetensi_tryouts')->onDelete('cascade');
             $table->integer('nomor');
             $table->text('soal');
             $table->text('pilihan_a');

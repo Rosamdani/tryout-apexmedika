@@ -13,8 +13,9 @@ return new class extends Migration
     {
         Schema::create('user_tryouts', function (Blueprint $table) {
             $table->uuid('id')->primary();
+            $table->string('tryout_id', 36);
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
-            $table->foreignId('tryout_id')->constrained('tryouts')->onDelete('cascade');
+            $table->foreign('tryout_id')->references('id')->on('tryouts')->onDelete('cascade');
             $table->integer('nilai');
             $table->string('status');
             $table->integer('waktu');
