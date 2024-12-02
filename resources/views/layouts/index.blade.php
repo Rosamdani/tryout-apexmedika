@@ -12,7 +12,7 @@
     @yield('style')
 </head>
 
-<body class="bg-light">
+<body style="background: #e5e5e5">
 
     <!-- Navbar Bootstrap -->
     @if (!request()->routeIs('tryout.tes'))

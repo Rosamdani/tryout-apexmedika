@@ -18,8 +18,8 @@
         <div class="d-flex align-items-center gap-3">
             @auth
             <div style="color: #199501FF;">{{ strtoupper(Auth::user()->name) }}</div>
-            <img src="{{ asset('storage/' . Auth::user()->avatar) }}" alt="User Avatar" class="rounded-circle shadow-sm"
-                style="width: 40px; height: 40px;">
+            <img src="https://ui-avatars.com/api/?name={{ substr(Auth::user()->name, 0, 1) == ' ' ? substr(Auth::user()->name, 0, 2) : substr(Auth::user()->name, 0, 1) }}&color=FFFFFF&background=09090b"
+                alt="{{ Auth::user()->name}}" class="rounded-circle shadow-sm" style="width: 40px; height: 40px;">
             @endauth
 
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"

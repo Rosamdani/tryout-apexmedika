@@ -180,6 +180,15 @@
                                     </div>
                                 `);
                         }
+                        if (response.data.finished && response.data.finished.length > 0) {
+                            $('#text_dikerjakan').text(response.data.finished.length);
+                            response.data.finished.forEach(function(tryout) {
+                                $('#tryout_sudah_dikerjakan').append(
+                                    get_container_tryouts(tryout.nama, tryout.tanggal, tryout.id,
+                                        tryout.status)
+                                );
+                            });
+                        }
                     }
                 },
                 complete: function() {

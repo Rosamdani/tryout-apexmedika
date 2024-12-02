@@ -31,17 +31,18 @@ class DatabaseSeeder extends Seeder
 
         // Buat batch tryout
         $batch = BatchTryouts::firstOrCreate([
-            'nama' => 'Batch 1',
+            'nama' => 'Batch I 2024',
+        ], [
             'start_date' => now(),
-            'end_date' => now()->addDays(34),
+            'end_date' => now()->addDays(33),
         ]);
 
         // Buat tryout
         $tryout = \App\Models\Tryouts::firstOrCreate([
             'nama' => 'TRY OUT FDI 1 BATCH 1 2024',
             'batch_id' => $batch->id,
-            'tanggal' => now()->subDays(3),
-            'waktu' => 120,
+            'tanggal' => now(),
+            'waktu' => 240,
         ]);
 
         // Buat kompetensi dan bidang
@@ -63,7 +64,7 @@ class DatabaseSeeder extends Seeder
                 'pilihan_c' => $this->faker->word(),
                 'pilihan_d' => $this->faker->word(),
                 'pilihan_e' => $this->faker->word(),
-                'jawaban' => 'A', // Jawaban tetap
+                'jawaban' => strtolower($this->faker->randomElement(['A', 'B', 'C', 'D', 'E'])),
                 'bidang_id' => $bidang->id,
                 'kompetensi_id' => $kompetensi->id,
             ]);

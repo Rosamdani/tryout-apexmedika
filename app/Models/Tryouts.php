@@ -40,4 +40,9 @@ class Tryouts extends Model
     {
         return $this->belongsTo(BatchTryouts::class, 'batch_id');
     }
+
+    public function userTryouts()
+    {
+        return $this->hasMany(UserTryouts::class, 'tryout_id');
+    }
 }

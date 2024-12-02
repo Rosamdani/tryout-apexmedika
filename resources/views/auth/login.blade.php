@@ -16,10 +16,10 @@
 
     <div class="mx-2 mx-md-4 py-5" style="height: 100vh;">
         <div class="row h-100 relative">
-            <div class="col-7 d-none d-md-block">
-                <img src="{{ asset('assets/images/login.png') }}" alt="login" class="h-100 w-100">
+            <div class="col-7 h-100 py-2 px-5 d-none d-md-block order-2">
+                <img src="" alt="login" class="h-100 w-100">
             </div>
-            <div class="col-12 col-md-5 h-100 d-flex flex-column justify-content-between">
+            <div class="col-12 col-md-5 h-100 d-flex flex-column justify-content-between order-1">
                 <div class="row">
                     <h1 style="font-size: 3rem;">Selamat Datang Kembali!</h1>
                     <p>Mulailah mengerjakan tryoutmu!</p>
@@ -31,7 +31,7 @@
                             <label class="form-label" for="email">Email</label>
                             <input type="email" name="email" id="email"
                                 class="form-control {{ $errors->has('email') ? 'is-invalid' : '' }}"
-                                style="border-radius: 10px;" value="rosamdani91@gmail.com" placeholder="Email">
+                                style="border-radius: 10px;" value="admin@gmail.com" placeholder="Email">
                         </div>
                         <div class="form-group mb-3">
                             <label class="form-label" for="password">Password</label>

@@ -8,6 +8,7 @@ use App\Models\Tryouts;
 use App\Models\UserAnswer;
 use App\Models\UserTime;
 use App\Models\UserTryouts;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -100,54 +101,153 @@ class TryoutController extends Controller
         }
     }
 
-    public function saveTimeLeft(Request $request)
+    public function pausedTime(Request $request)
     {
-        $request->validate([
-            'id_tryout' => 'required|exists:tryouts,id',
-            'sisa_waktu' => 'required|numeric',
-        ]);
+        try {
+            $request->validate([
+                'id_tryout' => 'required|exists:tryouts,id',
+            ]);
+            $user_time = UserTime::updateOrCreate([
+                'user_id' => Auth::user()->id,
+                'tryout_id' => $request->id_tryout,
+            ], [
+                'sisa_waktu' => $request->sisa_waktu,
+            ]);
 
-        // Temukan UserTryouts berdasarkan id_tryout dan user_id
-        $tryout = UserTime::where('tryout_id', $request->id_tryout)
-            ->where('user_id', Auth::user()->id)
-            ->first();
-
-        if (!$tryout) {
-            return response()->json(['status' => 'error', 'message' => 'User tryout not found'], 404);
+            return response()->json(['status' => 'success', 'message' => 'Sisa waktu updated successfully']);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'error', 'message' => 'Terjadi kesalahan ' . $e->getMessage()]);
         }
-
-        $tryout->sisa_waktu = $request->sisa_waktu;
-        $tryout->save();
-
-        return response()->json(['status' => 'success', 'message' => 'Time updated successfully']);
     }
 
     public function getTimeLeft(Request $request)
     {
-        $request->validate([
-            'id_tryout' => 'required|exists:tryouts,id',
-        ]);
+        try {
+            $user_time = UserTime::where('user_id', Auth::user()->id)
+                ->where('tryout_id', $request->id_tryout)
+                ->first();
+            if ($user_time) {
+                return response()->json(['status' => 'success', 'data' => $user_time->sisa_waktu]);
+            } else {
+                $tryout = Tryouts::findOrFail($request->id_tryout);
+                $user_time = UserTime::create([
+                    'user_id' => Auth::user()->id,
+                    'tryout_id' => $request->id_tryout,
+                    'sisa_waktu' => $tryout->waktu,
+                ]);
+                return response()->json(['status' => 'success', 'data' => $user_time->sisa_waktu]);
+            }
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'error', 'message' => 'Terjadi kesalahan ']);
+        }
+    }
 
-        $user_tryout = UserTime::where('user_id', Auth::user()->id)
+    public function saveEndTime(Request $request)
+    {
+        try {
+            $request->validate([
+                'id_tryout' => 'required|exists:tryouts,id',
+                'waktu_habis' => 'required',
+            ]);
+            $waktu_habis = Carbon::parse($request->waktu_habis)->format('Y-m-d H:i:s');
+
+
+            UserTime::updateOrCreate([
+                'user_id' => Auth::user()->id,
+                'tryout_id' => $request->id_tryout,
+            ], [
+                'waktu_habis' => $request->waktu_habis,
+            ]);
+
+            return response()->json(['status' => 'success', 'message' => 'Waktu habis updated successfully']);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'error', 'message' => 'Terjadi kesalahan ' . $e->getMessage()]);
+        }
+    }
+
+    public function getEndTime(Request $request)
+    {
+        $user_time = UserTime::where('user_id', Auth::user()->id)
+            ->where('tryout_id', $request->id_tryout)
+            ->first();
+        if ($user_time) {
+            return response()->json(['status' => 'success', 'data' => $user_time->waktu_habis]);
+        } else {
+            return response()->json(['status' => 'error', 'message' => 'User time not found']);
+        }
+    }
+
+    public function saveTimeLeft(Request $request)
+    {
+        $userTryout = UserTime::where('user_id', Auth::user()->id)
             ->where('tryout_id', $request->id_tryout)
             ->first();
 
-        if (!$user_tryout) {
-            $tryout = Tryouts::find($request->id_tryout);
-
-            if (!$tryout) {
-                return response()->json(['status' => 'error', 'message' => 'Tryout not found'], 404);
-            }
-
-            $user_tryout = new UserTime();
-            $user_tryout->user_id = Auth::user()->id;
-            $user_tryout->tryout_id = $request->id_tryout;
-            $user_tryout->sisa_waktu = $tryout->waktu;
-            $user_tryout->save();
-
-            return response()->json(['status' => 'success', 'message' => 'User tryout created successfully', 'sisa_waktu' => $user_tryout->sisa_waktu]);
+        if (!$userTryout) {
+            return response()->json(['status' => 'error', 'message' => 'Tryout tidak ditemukan']);
         }
 
-        return response()->json(['status' => 'success', 'message' => 'Timeleft get successfully', 'sisa_waktu' => $user_tryout->sisa_waktu]);
+        $userTryout->sisa_waktu = $request->sisa_waktu;
+        $userTryout->save();
+
+        return response()->json(['status' => 'success', 'message' => 'Waktu tersimpan']);
+    }
+
+    public function finishTryout(Request $request)
+    {
+        try {
+            $user_time = UserTime::where('user_id', Auth::user()->id)
+                ->where('tryout_id', $request->id_tryout)
+                ->first();
+            if ($user_time) {
+                $user_time->delete();
+                $user_tryout = UserTryouts::where('user_id', Auth::user()->id)
+                    ->where('tryout_id', $request->id_tryout)
+                    ->update(['status' => 'finished', 'nilai' => $this->calculateScore($request->id_tryout)]);
+                return response()->json(['status' => 'success', 'message' => 'Tryout finished successfully', 'data' => $user_tryout]);
+            } else {
+                return response()->json(['status' => 'error', 'message' => 'User time not found']);
+            }
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'error', 'message' => 'Terjadi kesalahan ' . $e->getMessage()]);
+        }
+    }
+
+    public function calculateScore($tryoutId)
+    {
+        try {
+            // Ambil data tryout berdasarkan ID
+            $tryout = Tryouts::with('questions')->findOrFail($tryoutId);
+
+            // Ambil daftar soal dalam tryout
+            $questions = $tryout->questions;
+            $totalQuestions = $questions->count();
+
+            // Ambil jawaban pengguna untuk soal dalam tryout
+            $userAnswers = UserAnswer::whereIn('soal_id', $questions->pluck('id'))
+                ->where('user_id', Auth::id()) // Menggunakan Auth::id() untuk user yang sedang login
+                ->get();
+
+            // Hitung jawaban benar
+            $correctAnswers = 0;
+
+            foreach ($questions as $question) {
+                $userAnswer = $userAnswers->firstWhere('soal_id', $question->id);
+
+                if ($userAnswer && $userAnswer->jawaban === $question->jawaban) {
+                    $correctAnswers++;
+                }
+            }
+
+            // Hitung skor sebagai persentase
+            $score = number_format($totalQuestions > 0 ? ($correctAnswers / $totalQuestions) * 100 : 0, 2, '.', ',');
+
+            return  $score;
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Terjadi kesalahan: ' . $e->getMessage()
+            ]);
+        }
     }
 }

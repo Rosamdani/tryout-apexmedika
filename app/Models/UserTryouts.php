@@ -29,4 +29,14 @@ class UserTryouts extends Model
         'waktu',
         'catatan',
     ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function tryout()
+    {
+        return $this->belongsTo(Tryouts::class, 'tryout_id');
+    }
 }

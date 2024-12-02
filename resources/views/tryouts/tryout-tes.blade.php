@@ -33,8 +33,8 @@
         </div>
     </div>
     <div class="col-12 col-md-3">
-        <button class="btn btn-primary w-100 mb-2 py-2">Selesai</button>
-        <button class="btn btn-outline-primary w-100 mb-2 py-2">Pause</button>
+        <button class="btn btn-primary w-100 mb-2 py-2 btn_selesai">Selesai</button>
+        <button class="btn btn-outline-primary w-100 mb-2 py-2" id="btn_paused">Pause</button>
         <div class="card border-0 mb-2 shadow-sm">
             <div class="card-body">
                 <div class="row align-items-center">
@@ -86,6 +86,8 @@
     </div>
     @endsection
     @section('script')
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         $(document).ready(function() {
                 let questions = [];
@@ -106,6 +108,9 @@
                                 questions = response.data;
                             }
                         },
+                        complete: function() {
+                            hideLoading();
+                        }
                     });
 
                 }
@@ -182,7 +187,7 @@
                             <button id="prev-btn" class="btn btn-primary" ${index === 0 ? 'disabled' : ''}>Sebelumnya</button>
                         </div>
                         <div id="next-btn" class="col-6 d-flex justify-content-end">
-                        ${index == questions.length - 1 ? '<button class="btn btn-primary finished">Selesai</button>' : '<button class="btn btn-primary">Selanjutnya</button>'}
+                        ${index == questions.length - 1 ? '<button class="btn btn-primary btn_selesai">Selesai</button>' : '<button class="btn btn-primary">Selanjutnya</button>'}
                         </div>
                     </div>
                 </div>
@@ -404,87 +409,191 @@
             });
 
 
+            $(document).on('click', '.btn_selesai', function() {
+                Swal.fire({
+                    title: 'Anda yakin?',
+                    text: "Apakah Anda yakin ingin menyelesaikan tryout ini?",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Ya, saya yakin!'
+                }).then(async (result) => {
+                    if (result.isConfirmed) {
+                        try {
+                            const response = await $.ajax({
+                                url: "{{ route('tryout.finish') }}",
+                                method: 'POST',
+                                data: {
+                                    _token: "{{ csrf_token() }}",
+                                    id_tryout: "{{ $tryout->id }}"
+                                }
+                            });
 
-            $(document).ready(function () {
-
-            let timeLeft = {{ $tryout->waktu }} * 60; // Ubah waktu awal dari menit ke detik
-            const idTryout = "{{ $tryout->id }}";
-
-            // Fungsi untuk memperbarui tampilan waktu
-            function updateCountdownDisplay(time) {
-                const hours = Math.floor(time / 3600); // Hitung jam
-                const minutes = Math.floor((time % 3600) / 60); // Hitung menit
-                const seconds = time % 60; // Hitung detik
-
-                $('#hours').text(String(hours).padStart(2, '0'));
-                $('#minutes').text(String(minutes).padStart(2, '0'));
-                $('#seconds').text(String(seconds).padStart(2, '0'));
-            }
-
-                    const interval = setInterval(() => {
-                    if (timeLeft <= 0) {
-                        clearInterval(interval);
-                        alert("Waktu habis!");
-                        return;
-                    }
-
-                    timeLeft = timeLeft - 1; // Kurangi 1 detik
-                    updateCountdownDisplay(timeLeft);
-
-                    // Perbarui server setiap menit
-                    if (timeLeft % 60 === 0) { // Jika waktu sisa kelipatan 60 detik
-                        updateTimeOnServer();
-                    }
-                }, 1000); // Perbarui setiap 1 detik
-
-            // Fungsi untuk mendapatkan waktu awal dari server
-            function fetchInitialTime() {
-                $.ajax({
-                    url: `{{ route('tryout.getTimeLeft') }}`,
-                    method: 'GET',
-                    data: { id_tryout: idTryout },
-                    success: function(response) {
-                        if (response.status === 'success') {
-                            timeLeft = response.sisa_waktu * 60; // Ubah dari menit ke detik
-                            updateCountdownDisplay(timeLeft); // Perbarui tampilan awal
-
-                        } else {
-                            console.error(response.message);
+                            if (response.status === 'success') {
+                                Swal.fire({
+                                    title: 'Sukses!',
+                                    text: 'Tryout telah diselesaikan.',
+                                    icon: 'success',
+                                    confirmButtonText: 'OK',
+                                    allowOutsideClick: false,
+                                }).then(() => {
+                                    window.location.href = "{{ route('tryout.index') }}";
+                                });
+                            } else {
+                                Swal.fire(
+                                    'Gagal!',
+                                    'Gagal menyelesaikan tryout. Silakan coba lagi.',
+                                    'error'
+                                );
+                            }
+                        } catch (error) {
+                            console.error(error);
+                            Swal.fire(
+                                'Error!',
+                                'Tidak dapat terhubung ke server.',
+                                'error'
+                            );
                         }
-                    },
-                    error: function(xhr, status, error) {
-                        console.error('Error fetching time:', error);
-                    },
-                    complete: function() {
-                        hideLoading();
                     }
                 });
-            }
+            });
+            // Inisialisasi Web Worker
+            const worker = new Worker(`{{ asset('js/worker/worker.js') }}`);
 
-            // Fungsi untuk memperbarui waktu di server
-            function updateTimeOnServer() {
-                $.ajax({
-                    url: "{{ route('tryout.saveTimeLeft') }}",
-                    method: 'POST',
-                    data: {
-                        id_tryout: idTryout,
-                        sisa_waktu: Math.ceil(timeLeft / 60), // Kirim waktu sisa dalam menit
-                        _token: "{{ csrf_token() }}",
-                    },
-                    success: function(response) {
-                        if (response.status !== 'success') {
-                            console.error(response.message);
+            async function startCountdown(idTryout, initialTime) {
+                worker.postMessage({ type: 'start', time: initialTime * 60 });
+
+                // Tangani pesan dari worker
+                worker.onmessage = async function (e) {
+                    const { type, remainingTime } = e.data;
+
+                    if (type === 'time-update') {
+                        // Perbarui tampilan countdown di UI
+                        updateCountdownDisplay(remainingTime);
+                    } else if (type === 'sync-time') {
+                        // Sinkronkan waktu dengan server
+                        await syncTimeWithServer(idTryout, remainingTime);
+                    } else if (type === 'time-up') {
+                        try {
+                            const response = await $.ajax({
+                                url: "{{ route('tryout.finish') }}",
+                                method: 'POST',
+                                data: {
+                                    _token: "{{ csrf_token() }}",
+                                    id_tryout: "{{ $tryout->id }}"
+                                }
+                            });
+
+                            if (response.status === 'success') {
+                                Swal.fire({
+                                    title: 'Waktu Habis!',
+                                    text: 'Tryout telah selesai otomatis.',
+                                    icon: 'info',
+                                    confirmButtonText: 'OK',
+                                    allowOutsideClick: false,
+                                }).then(() => {
+                                    window.location.href = "{{ route('tryout.index') }}"; // Ganti dengan rute Anda
+                                });
+                            } else {
+                                Swal.fire(
+                                    'Gagal!',
+                                    'Gagal menyelesaikan tryout. Silakan coba lagi.',
+                                    'error'
+                                );
+                            }
+                        } catch (error) {
+                            console.error(error);
+                            Swal.fire(
+                                'Error!',
+                                'Tidak dapat terhubung ke server.',
+                                'error'
+                            );
                         }
-                    },
-                    error: function(xhr, status, error) {
-                        console.error('Error updating time:', error);
                     }
-                });
+                };
+            }
+
+            // Fungsi untuk memperbarui tampilan countdown di UI
+            function updateCountdownDisplay(remainingTime) {
+                const hours = Math.floor((remainingTime / 3600) % 24);
+                const minutes = Math.floor((remainingTime / 60) % 60);
+                const seconds = remainingTime % 60;
+
+                document.getElementById('hours').innerText = String(hours).padStart(2, '0');
+                document.getElementById('minutes').innerText = String(minutes).padStart(2, '0');
+                document.getElementById('seconds').innerText = String(seconds).padStart(2, '0');
+            }
+
+            // Fungsi untuk menyinkronkan waktu dengan server
+            async function syncTimeWithServer(idTryout, remainingTime) {
+                try {
+                    const response = await $.ajax({
+                        url: "{{ route('tryout.saveTimeLeft') }}", // Ganti dengan rute Anda
+                        method: 'POST',
+                        data: {
+                            _token: "{{ csrf_token() }}",
+                            id_tryout: idTryout,
+                            sisa_waktu: Math.ceil(remainingTime / 60),
+                        },
+                    });
+
+                    if (response.status !== 'success') {
+                        console.error('Gagal menyinkronkan waktu dengan server');
+                    }
+                } catch (error) {
+                    console.error('Error syncing time with server:', error);
+                }
+            }
+
+            // Fungsi untuk menghentikan countdown (pause)
+            function pauseCountdown() {
+                worker.postMessage({ type: 'pause' });
             }
 
 
-            fetchInitialTime();
-        });
+            // Event listener untuk tombol pause
+            $(document).on('click', '#btn_paused', async function () {
+                const idTryout = $(this).data('id-tryout'); // Ambil ID Tryout dari tombol
+                pauseCountdown();
+                Swal.fire({
+                    title: 'Berhasil!',
+                    text: 'Tryout berhasil dihentikan sementara.',
+                    icon: 'success',
+                    confirmButtonText: 'OK',
+                    allowOutsideClick: false
+                }).then(() => {
+                    window.location.href = "{{ route('tryout.index') }}"; // Arahkan ke halaman index tryout
+                });
+            });
+
+            // Panggil fungsi untuk memulai countdown saat halaman dimuat
+            $(document).ready(async function () {
+                const idTryout = "{{ $tryout->id }}"; // Ambil ID Tryout dari data server
+
+                try {
+                    // Ambil waktu awal dari server
+                    const response = await $.ajax({
+                        url: "{{ route('tryout.getTimeLeft') }}", // Ganti dengan rute Anda
+                        method: 'POST',
+                        data: {
+                            _token: "{{ csrf_token() }}",
+                            id_tryout: idTryout,
+                        },
+                    });
+
+                    if (response.status === 'success') {
+                        const initialTime = Number(response.data); // Waktu tersisa dalam detik
+                        startCountdown(idTryout, initialTime); // Mulai countdown
+                    } else {
+                        Swal.fire('Error!', 'Gagal memuat waktu tryout.', 'error');
+                    }
+                } catch (error) {
+                    console.error('Error fetching time left:', error);
+                    Swal.fire('Error!', 'Tidak dapat memuat waktu tryout.', 'error');
+                }
+            });
+
 
     </script>
     @endsection

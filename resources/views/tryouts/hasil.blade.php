@@ -20,7 +20,7 @@
                 </div>
                 <div class="row">
                     <div class="col-12">
-                        <h3 class="fw-bold">60.67</h3>
+                        <h3 class="fw-bold">{{ $userTryout->nilai }}</h3>
                     </div>
                 </div>
             </div>
@@ -54,7 +54,8 @@
                 </div>
                 <div class="row">
                     <div class="col-12">
-                        <h3 class="fw-bold">320</h3>
+                        <h3 class="fw-bold mb-0">{{$userTryoutRank}}</h3>
+                        <small class="text-muted mb-0">Dari total {{$totalUser}} peserta</small>
                     </div>
                 </div>
             </div>
@@ -85,7 +86,7 @@
                 </div>
                 <div class="row">
                     <div class="col-12">
-                        <h3 class="fw-bold">Lulus</h3>
+                        <h3 class="fw-bold">{{ $status_lulus}}</h3>
                     </div>
                 </div>
             </div>
@@ -94,8 +95,7 @@
     <div class="col-6 col-md-6 col-lg-3 mb-2">
         <div class="card h-100 shadow-sm"
             style="border: none; background: linear-gradient(120deg, #AE1212FF 0%, #A01010FF 100%)">
-            <div class="card-body" style="cursor: pointer;"
-                onclick="window.location.href='{{ route('tryouts.pembahasan', ['id' => $tryout->id]) }}'">
+            <div class="card-body" style="cursor: pointer;">
                 <div class="d-flex justify-content-between align-items-start">
                     <h3 class="fw-bold text-white">Lihat Pembahasan</h3>
                     <svg width="40px" height="40px" viewBox="-7.68 -7.68 39.36 39.36" fill="none"
@@ -135,56 +135,9 @@
                         <div class="col-2">Salah</div>
                         <div class="col-3">Tidak Dikerjakan</div>
                     </div>
-                    <div style="max-height: 260px;lowerflow-y: auto; overflow-y: scroll; scrollbar-width:none;">
-                        <div class="row p-2">
-                            <div class="col-3 fw-bold" style="color: #D76B00FF">INTERNA</div>
-                            <div class="col-2">130</div>
-                            <div class="col-2">130</div>
-                            <div class="col-2">130</div>
-                            <div class="col-3">130</div>
-                        </div>
-                        <div class="row p-2">
-                            <div class="col-3 fw-bold" style="color: #D76B00FF">INTERNA</div>
-                            <div class="col-2">130</div>
-                            <div class="col-2">130</div>
-                            <div class="col-2">130</div>
-                            <div class="col-3">130</div>
-                        </div>
-                        <div class="row p-2">
-                            <div class="col-3 fw-bold" style="color: #D76B00FF">INTERNA</div>
-                            <div class="col-2">130</div>
-                            <div class="col-2">130</div>
-                            <div class="col-2">130</div>
-                            <div class="col-3">130</div>
-                        </div>
-                        <div class="row p-2">
-                            <div class="col-3 fw-bold" style="color: #D76B00FF">INTERNA</div>
-                            <div class="col-2">130</div>
-                            <div class="col-2">130</div>
-                            <div class="col-2">130</div>
-                            <div class="col-3">130</div>
-                        </div>
-                        <div class="row p-2">
-                            <div class="col-3 fw-bold" style="color: #D76B00FF">INTERNA</div>
-                            <div class="col-2">130</div>
-                            <div class="col-2">130</div>
-                            <div class="col-2">130</div>
-                            <div class="col-3">130</div>
-                        </div>
-                        <div class="row p-2">
-                            <div class="col-3 fw-bold" style="color: #D76B00FF">INTERNA</div>
-                            <div class="col-2">130</div>
-                            <div class="col-2">130</div>
-                            <div class="col-2">130</div>
-                            <div class="col-3">130</div>
-                        </div>
-                        <div class="row p-2">
-                            <div class="col-3 fw-bold" style="color: #D76B00FF">INTERNA</div>
-                            <div class="col-2">130</div>
-                            <div class="col-2">130</div>
-                            <div class="col-2">130</div>
-                            <div class="col-3">130</div>
-                        </div>
+                    <div id="bidang_container"
+                        style="max-height: 260px;lowerflow-y: auto; overflow-y: scroll; scrollbar-width:none;">
+
                     </div>
 
                 </div>
@@ -195,7 +148,7 @@
         </div>
         <div class="card mb-3 shadow-sm" style="border: none;">
             <div class="card-header" style="background-color: white;">
-                <h4>Detail Per Bidang</h4>
+                <h4>Detail Per Kompetensi</h4>
             </div>
             <div class="card-body">
                 <div class="mx-1">
@@ -206,56 +159,9 @@
                         <div class="col-2">Salah</div>
                         <div class="col-3">Tidak Dikerjakan</div>
                     </div>
-                    <div style="max-height: 260px;lowerflow-y: auto; overflow-y: scroll; scrollbar-width:none;">
-                        <div class="row p-2">
-                            <div class="col-3 fw-bold" style="color: #D76B00FF">INTERNA</div>
-                            <div class="col-2">130</div>
-                            <div class="col-2">130</div>
-                            <div class="col-2">130</div>
-                            <div class="col-3">130</div>
-                        </div>
-                        <div class="row p-2">
-                            <div class="col-3 fw-bold" style="color: #D76B00FF">INTERNA</div>
-                            <div class="col-2">130</div>
-                            <div class="col-2">130</div>
-                            <div class="col-2">130</div>
-                            <div class="col-3">130</div>
-                        </div>
-                        <div class="row p-2">
-                            <div class="col-3 fw-bold" style="color: #D76B00FF">INTERNA</div>
-                            <div class="col-2">130</div>
-                            <div class="col-2">130</div>
-                            <div class="col-2">130</div>
-                            <div class="col-3">130</div>
-                        </div>
-                        <div class="row p-2">
-                            <div class="col-3 fw-bold" style="color: #D76B00FF">INTERNA</div>
-                            <div class="col-2">130</div>
-                            <div class="col-2">130</div>
-                            <div class="col-2">130</div>
-                            <div class="col-3">130</div>
-                        </div>
-                        <div class="row p-2">
-                            <div class="col-3 fw-bold" style="color: #D76B00FF">INTERNA</div>
-                            <div class="col-2">130</div>
-                            <div class="col-2">130</div>
-                            <div class="col-2">130</div>
-                            <div class="col-3">130</div>
-                        </div>
-                        <div class="row p-2">
-                            <div class="col-3 fw-bold" style="color: #D76B00FF">INTERNA</div>
-                            <div class="col-2">130</div>
-                            <div class="col-2">130</div>
-                            <div class="col-2">130</div>
-                            <div class="col-3">130</div>
-                        </div>
-                        <div class="row p-2">
-                            <div class="col-3 fw-bold" style="color: #D76B00FF">INTERNA</div>
-                            <div class="col-2">130</div>
-                            <div class="col-2">130</div>
-                            <div class="col-2">130</div>
-                            <div class="col-3">130</div>
-                        </div>
+                    <div id="kompetensi_container"
+                        style="max-height: 260px;lowerflow-y: auto; overflow-y: scroll; scrollbar-width:none;">
+
                     </div>
                 </div>
             </div>
@@ -275,11 +181,13 @@
                     <div class=" col-6 py-2 text-danger">
                         {{ Auth::user()->name }}
                     </div>
-                    <div class="col-6 py-2 text-end text-danger fw-bold">600</div>
+                    <div class="col-6 py-2 text-end text-danger fw-bold">{{ $userTryoutRank}}</div>
                 </div>
             </div>
             <div class="card-footer bg-white border-0">
-                <button class="btn btn-outline-primary">Lihat Detail Ranking</button>
+                <button class="btn btn-outline-primary"
+                    onclick="window.location.href=`{{route('tryouts.hasil.perangkinan', $userTryout->tryout_id)}}`">Lihat
+                    Detail Ranking</button>
             </div>
         </div>
         <div class="card border-0 shadow-sm mb-3">
@@ -313,9 +221,78 @@
 @endsection
 @section('script')
 <script>
-    $(document).ready(function () {
+    $(document).ready(function() {
+        showLoading();
+    // Ambil data dari server, misalnya melalui AJAX
+    $.ajax({
+        url: "{{ route('tryout.getResult') }}", // Sesuaikan dengan URL yang digunakan
+        method: 'POST',
+        data: {
+            _token: "{{ csrf_token() }}",
+            tryout_id: "{{ $userTryout->tryout_id }}",
+        },
+        success: function(response) {
+            if (response.status === 'success') {
+                const data = response.data.data;
+                // Render data pada #bidang_container
+                renderBidangData(data.bidang);
 
+                // Render data pada #kompetensi_container
+                renderKompetensiData(data.kompetensi);
+            } else {
+                Swal.fire('Gagal!', 'Data gagal diambil', 'error');
+            }
+        },
+        error: function(error) {
+            console.error('Error:', error);
+            Swal.fire('Error!', 'Terjadi kesalahan saat mengambil data.', 'error');
+        },
+        complete: function() {
+            hideLoading();
+        }
+    });
+
+    // Fungsi untuk merender data bidang
+    function renderBidangData(bidangData) {
+        $('#bidang_container').empty(); // Kosongkan container sebelum merender ulang
+        $.each(bidangData, function(kategori, items) {
+            $.each(items, function(index, item) {
+                const row = `
+                    <div class="row p-2">
+                        <div class="col-3 fw-bold" style="color: #D76B00FF">${item.kategori}</div>
+                        <div class="col-2">${item.total_soal}</div>
+                        <div class="col-2">${item.benar}</div>
+                        <div class="col-2">${item.salah}</div>
+                        <div class="col-3">${item.tidak_dikerjakan}</div>
+                    </div>
+                `;
+                $('#bidang_container').append(row);
+            });
         });
+    }
+
+    // Fungsi untuk merender data kompetensi
+    function renderKompetensiData(kompetensiData) {
+        $('#kompetensi_container').empty(); // Kosongkan container sebelum merender ulang
+
+        $.each(kompetensiData, function(kompetensi, items) {
+            $.each(items, function(index, item) {
+                const row = `
+                    <div class="row p-2">
+                        <div class="col-3 fw-bold" style="color: #D76B00FF">${item.kompetensi}</div>
+                        <div class="col-2">${item.total_soal}</div>
+                        <div class="col-2">${item.benar}</div>
+                        <div class="col-2">${item.salah}</div>
+                        <div class="col-3">${item.tidak_dikerjakan}</div>
+                    </div>
+                `;
+                $('#kompetensi_container').append(row);
+            });
+        });
+    }
+});
+
+
 
 </script>
 @endsection

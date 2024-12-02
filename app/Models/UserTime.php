@@ -25,5 +25,16 @@ class UserTime extends Model
         'user_id',
         'tryout_id',
         'sisa_waktu',
+        'waktu_habis',
     ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function tryout()
+    {
+        return $this->belongsTo(Tryouts::class, 'tryout_id');
+    }
 }
