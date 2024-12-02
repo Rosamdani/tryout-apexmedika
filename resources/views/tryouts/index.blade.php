@@ -102,12 +102,14 @@
     </div>
 </div>
 <div class="row mb-3">
-    <div class="card shadow-sm border-0">
-        <div class="card-header bg-white">
-            <h6>Grafik Perkembangan</h6>
-        </div>
-        <div class="card-body">
-            <div id="chart">
+    <div class="col-12">
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-white">
+                <h6>Grafik Perkembangan</h6>
+            </div>
+            <div class="card-body">
+                <div id="chart">
+                </div>
             </div>
         </div>
     </div>

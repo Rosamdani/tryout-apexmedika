@@ -2,6 +2,7 @@
 
 use App\Http\Middleware\AuthMiddleware;
 use App\Models\Tryouts;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -27,4 +28,5 @@ Route::middleware([AuthMiddleware::class])->post('/tryout/getChartSubTopik', [Ap
 Route::middleware([AuthMiddleware::class])->post('/testimoni/store', [App\Http\Controllers\TestimoniController::class, 'store'])->name('testimoni.store');
 
 Route::middleware('guest')->get('/login', [App\Http\Controllers\AuthController::class, 'login'])->name('login');
+Route::middleware('auth')->get('/logout', [App\Http\Controllers\AuthController::class, 'logout'])->name('logout');
 Route::middleware('guest')->post('/login', [App\Http\Controllers\AuthController::class, 'loginStore'])->name('loginStore');

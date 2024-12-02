@@ -13,6 +13,9 @@ class TryoutHasilController extends Controller
     {
         try {
             $userTryout = UserTryouts::where('tryout_id', $id)->where('user_id', Auth::user()->id)->first();
+            if ($userTryout->status != 'finished') {
+                return redirect()->back();
+            }
             $totalUser = UserTryouts::where('tryout_id', $id)->where('status', 'finished')->count();
             $userTryoutRank = UserTryouts::where('tryout_id', $id)
                 ->orderBy('nilai', 'DESC')

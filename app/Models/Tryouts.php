@@ -45,4 +45,9 @@ class Tryouts extends Model
     {
         return $this->hasMany(UserTryouts::class, 'tryout_id');
     }
+
+    public function testimonis()
+    {
+        return $this->hasMany(Testimoni::class, 'tryout_id');
+    }
 }

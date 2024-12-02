@@ -259,7 +259,7 @@
 
             // Ambil data dari server melalui AJAX
             $.ajax({
-                url: "http://127.0.0.1:8000/tryout/getResult",
+                url: "{{ route('tryout.getResult')}}",
                 method: 'POST',
                 data: {
                     _token: "{{ csrf_token() }}",

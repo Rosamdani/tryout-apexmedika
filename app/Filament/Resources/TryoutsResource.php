@@ -56,26 +56,13 @@ class TryoutsResource extends Resource
                         ->placeholder('Waktu Pengerjaan Tryout (dalam menit)')
                         ->columnSpanFull()
                         ->required(),
-                    Forms\Components\ToggleButtons::make('status')
-                        ->columnSpanFull()
-                        ->options([
-                            'not_started' => 'Belum Dimulai',
-                            'started' => 'Dimulai',
-                            'finished' => 'Selesai',
-                        ])
-                        ->default('not_started')
-                        ->inline()
-                        ->icons([
-                            'finished' => 'heroicon-o-check-circle',
-                            'not_started' => 'heroicon-o-x-circle',
-                            'started' => 'heroicon-o-clock',
-                        ])
-                        ->colors([
-                            'finished' => 'success',
-                            'not_started' => 'danger',
-                            'started' => 'warning',
-                        ])
-                        ->required(),
+                    Forms\Components\DatePicker::make('tanggal')
+                        ->label('Tanggal Dibuat')
+                        ->default(now())
+                        ->native(false)
+                        ->displayFormat('l, d F Y')
+                        ->locale('id')
+                        ->columnSpanFull(),
                 ])->columns(2),
             ]);
     }
@@ -117,6 +104,8 @@ class TryoutsResource extends Resource
     {
         return [
             RelationManagers\QuestionRelationManager::class,
+            RelationManagers\TestimonisRelationManager::class,
+            RelationManagers\UserTryoutsRelationManager::class,
         ];
     }
 

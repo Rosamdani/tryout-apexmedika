@@ -5,6 +5,7 @@ namespace App\Filament\Resources\TryoutsResource\RelationManagers;
 use App\Models\BidangTryouts;
 use App\Models\KompetensiTryouts;
 use Filament\Forms;
+use Illuminate\Database\Eloquent\Model;
 use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
@@ -134,6 +135,11 @@ class QuestionRelationManager extends RelationManager
                 ]),
             ]);
     }
+    public static function getBadge(Model $ownerRecord, string $pageClass): ?string
+    {
+        return $ownerRecord->questions ? $ownerRecord->questions->count() : null;
+    }
+
     public function isReadOnly(): bool
     {
         return false;
