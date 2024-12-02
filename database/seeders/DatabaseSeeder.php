@@ -50,11 +50,25 @@ class DatabaseSeeder extends Seeder
             'nama' => '1',
         ]);
 
+        $kompetensi2 = KompetensiTryouts::firstOrCreate([
+            'nama' => '2',
+        ]);
+        $kompetensi3 = KompetensiTryouts::firstOrCreate([
+            'nama' => '3A',
+        ]);
+
         $bidang = BidangTryouts::firstOrCreate([
             'nama' => 'INTERNA',
         ]);
 
-        for ($i = 1; $i <= 150; $i++) {
+        $bidang2 = BidangTryouts::firstOrCreate([
+            'nama' => 'PEDIATRI',
+        ]);
+        $bidang3 = BidangTryouts::firstOrCreate([
+            'nama' => 'OBGYN',
+        ]);
+
+        for ($i = 1; $i <= 20; $i++) {
             SoalTryout::firstOrCreate([
                 'nomor' => $i,
                 'tryout_id' => $tryout->id,
@@ -65,8 +79,8 @@ class DatabaseSeeder extends Seeder
                 'pilihan_d' => $this->faker->word(),
                 'pilihan_e' => $this->faker->word(),
                 'jawaban' => strtolower($this->faker->randomElement(['A', 'B', 'C', 'D', 'E'])),
-                'bidang_id' => $bidang->id,
-                'kompetensi_id' => $kompetensi->id,
+                'bidang_id' => $this->faker->randomElement([$bidang->id, $bidang2->id, $bidang3->id]),
+                'kompetensi_id' => $this->faker->randomElement([$kompetensi->id, $kompetensi2->id, $kompetensi3->id]),
             ]);
         }
     }

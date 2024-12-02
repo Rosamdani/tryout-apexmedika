@@ -1,6 +1,16 @@
 @extends('layouts.index')
 @section('title', 'Hasil Tryout')
 @section('content')
+<div class="row align-items-center">
+    <div class="col-12 col-md-6">
+        <h2>{{ $userTryout->tryout->nama }}</h2>
+    </div>
+    <div class="col-12 col-md-6 text-md-end">
+        <p>
+            {{ \Carbon\Carbon::now()->locale('id_ID')->translatedFormat('l, j F Y') }}
+        </p>
+    </div>
+</div>
 <div class="row gap-lg-0">
     <div class="col-6 col-md-6 col-lg-3 mb-2">
         <div class="card h-100 shadow-sm" style="border: none;">
@@ -54,8 +64,8 @@
                 </div>
                 <div class="row">
                     <div class="col-12">
-                        <h3 class="fw-bold mb-0">{{$userTryoutRank}}</h3>
-                        <small class="text-muted mb-0">Dari total {{$totalUser}} peserta</small>
+                        <h3 class="fw-bold mb-0">{{ $userTryoutRank }}</h3>
+                        <small class="text-muted mb-0">Dari total {{ $totalUser }} peserta</small>
                     </div>
                 </div>
             </div>
@@ -86,7 +96,7 @@
                 </div>
                 <div class="row">
                     <div class="col-12">
-                        <h3 class="fw-bold">{{ $status_lulus}}</h3>
+                        <h3 class="fw-bold">{{ $status_lulus }}</h3>
                     </div>
                 </div>
             </div>
@@ -181,12 +191,12 @@
                     <div class=" col-6 py-2 text-danger">
                         {{ Auth::user()->name }}
                     </div>
-                    <div class="col-6 py-2 text-end text-danger fw-bold">{{ $userTryoutRank}}</div>
+                    <div class="col-6 py-2 text-end text-danger fw-bold">{{ $userTryoutRank }}</div>
                 </div>
             </div>
             <div class="card-footer bg-white border-0">
                 <button class="btn btn-outline-primary"
-                    onclick="window.location.href=`{{route('tryouts.hasil.perangkinan', $userTryout->tryout_id)}}`">Lihat
+                    onclick="window.location.href=`{{ route('tryouts.hasil.perangkinan', $userTryout->tryout_id) }}`">Lihat
                     Detail Ranking</button>
             </div>
         </div>
@@ -195,7 +205,9 @@
                 <h4>Testimoni</h4>
             </div>
             <div class="card-body">
-                <form action="">
+                <form action="{{ route('testimoni.store')}}" method="POST">
+                    @csrf
+                    <input type="hidden" value="{{ $userTryout->tryout_id }}" name="tryout_id">
                     <div class="form-group mb-3">
                         <textarea name="testimoni" id="testimoni" class="form-control bg-light"
                             placeholder="Masukkan testimoni / kritik kamu" style="height: 100px;"></textarea>
@@ -205,12 +217,12 @@
                             <h6 class="mb-0">Beri bintang untuk ujian ini</h6>
                             <div class="rating"> <input type="radio" name="rating" value="5" id="5"><label
                                     for="5">☆</label> <input type="radio" name="rating" value="4" id="4"><label
-                                    for="4">☆</label> <input type="radio" name="rating" value="3" id="3"><label
-                                    for="3">☆</label> <input type="radio" name="rating" value="2" id="2"><label
-                                    for="2">☆</label> <input type="radio" name="rating" value="1" id="1"><label
-                                    for="1">☆</label>
+                                    for="4">☆</label>
+                                <input type="radio" name="rating" value="3" id="3"><label for="3">☆</label> <input
+                                    type="radio" name="rating" value="2" id="2"><label for="2">☆</label> <input
+                                    type="radio" name="rating" value="1" id="1"><label for="1">☆</label>
                             </div>
-                            <button class="btn btn-primary">Kirim Testimoni</button>
+                            <button type="submit" class="btn btn-primary">Kirim Testimoni</button>
                         </div>
                     </div>
                 </form>
@@ -218,81 +230,208 @@
         </div>
     </div>
 </div>
+
+<div class="row mb-3">
+    <div class="col-12">
+        <div class="card border-0">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-12 col-md-8 mb-3 mb-md-0">
+                        <div id="chart_subtopik"></div>
+                    </div>
+                    <div class="col-12 col-md-4">
+                        <h6>Estimasi pendalaman per-bidang</h6>
+                        <div class="d-flex flex-column" id="estimasiPerbidang">
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 @endsection
 @section('script')
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 <script>
     $(document).ready(function() {
-        showLoading();
-    // Ambil data dari server, misalnya melalui AJAX
-    $.ajax({
-        url: "{{ route('tryout.getResult') }}", // Sesuaikan dengan URL yang digunakan
-        method: 'POST',
-        data: {
-            _token: "{{ csrf_token() }}",
-            tryout_id: "{{ $userTryout->tryout_id }}",
-        },
-        success: function(response) {
-            if (response.status === 'success') {
-                const data = response.data.data;
-                // Render data pada #bidang_container
-                renderBidangData(data.bidang);
+            showLoading();
 
-                // Render data pada #kompetensi_container
-                renderKompetensiData(data.kompetensi);
-            } else {
-                Swal.fire('Gagal!', 'Data gagal diambil', 'error');
+            // Ambil data dari server melalui AJAX
+            $.ajax({
+                url: "http://127.0.0.1:8000/tryout/getResult",
+                method: 'POST',
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    tryout_id: "{{ $userTryout->tryout_id }}"
+                },
+                success: function(response) {
+                    if (response.status === "success") {
+                        const data = response.data;
+
+                        // Render data pada #bidang_container
+                        renderBidangData(data.bidang);
+
+                        // Render data pada #kompetensi_container
+                        renderKompetensiData(data.kompetensi);
+                    } else {
+                        Swal.fire("Gagal!", "Data gagal diambil", "error");
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error:', xhr, status, error);
+                    Swal.fire('Error!', `Terjadi kesalahan: ${error}`, 'error');
+                },
+                complete: function() {
+                    hideLoading();
+                }
+            });
+
+            function renderBidangData(bidangData) {
+                $('#bidang_container').empty(); // Kosongkan container sebelum merender ulang
+
+                $.each(bidangData, function(index, item) {
+                    const row = `
+                <div class="row p-2">
+                    <div class="col-3 fw-bold" style="color: #D76B00FF">${item.kategori}</div>
+                    <div class="col-2">${item.total_soal}</div>
+                    <div class="col-2">${item.benar}</div>
+                    <div class="col-2">${item.salah}</div>
+                    <div class="col-3">${item.tidak_dikerjakan}</div>
+                </div>
+            `;
+                    $('#bidang_container').append(row);
+                });
             }
-        },
-        error: function(error) {
-            console.error('Error:', error);
-            Swal.fire('Error!', 'Terjadi kesalahan saat mengambil data.', 'error');
-        },
-        complete: function() {
-            hideLoading();
-        }
-    });
 
-    // Fungsi untuk merender data bidang
-    function renderBidangData(bidangData) {
-        $('#bidang_container').empty(); // Kosongkan container sebelum merender ulang
-        $.each(bidangData, function(kategori, items) {
-            $.each(items, function(index, item) {
-                const row = `
-                    <div class="row p-2">
-                        <div class="col-3 fw-bold" style="color: #D76B00FF">${item.kategori}</div>
-                        <div class="col-2">${item.total_soal}</div>
-                        <div class="col-2">${item.benar}</div>
-                        <div class="col-2">${item.salah}</div>
-                        <div class="col-3">${item.tidak_dikerjakan}</div>
-                    </div>
-                `;
-                $('#bidang_container').append(row);
+            // Fungsi untuk merender data kompetensi
+            function renderKompetensiData(kompetensiData) {
+                $('#kompetensi_container').empty(); // Kosongkan container sebelum merender ulang
+
+                $.each(kompetensiData, function(index, item) {
+                    const row = `
+                <div class="row p-2">
+                    <div class="col-3 fw-bold" style="color: #D76B00FF">${item.kategori}</div>
+                    <div class="col-2">${item.total_soal}</div>
+                    <div class="col-2">${item.benar}</div>
+                    <div class="col-2">${item.salah}</div>
+                    <div class="col-3">${item.tidak_dikerjakan}</div>
+                </div>
+            `;
+                    $('#kompetensi_container').append(row);
+                });
+            }
+            $.ajax({
+                url: "{{ route('tryouts.hasil.getChartSubTopik') }}",
+                type: 'POST',
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    tryout_id: "{{ $userTryout->tryout_id }}"
+                },
+                success: function(response) {
+                    if (response.status === 'success') {
+                        const bidangData = response.data.bidang;
+
+                        estimasiPerbidang(bidangData);
+
+                        var options = {
+                            series: [{
+                                name: 'Persentase Pendalaman Bidang',
+                                data: bidangData.map(item => parseFloat(item.persen_benar))
+                            }],
+                            title: {
+                                text: 'Pendalaman',
+                                align: 'center',
+                                style: {
+                                    fontSize: '16px',
+                                    fontWeight: 'bold',
+                                    color: '#333'
+                                }
+                            },
+                            chart: {
+                                height: 350,
+                                type: 'bar',
+                            },
+                            plotOptions: {
+                                bar: {
+                                    borderRadius: 10,
+                                    columnWidth: '50%',
+                                    colors: {
+                                        ranges: bidangData.map(item => {
+                                            const persenBenar = parseFloat(item.persen_benar);
+                                            if (persenBenar < 60) {
+                                                return { from: persenBenar, to: persenBenar, color: '#FF6666' }; // Merah
+                                            } else if (persenBenar >= 60 && persenBenar < 80) {
+                                                return { from: persenBenar, to: persenBenar, color: '#FFA500' }; // Oranye
+                                            } else {
+                                                return { from: persenBenar, to: persenBenar, color: '#66CC66' }; // Hijau
+                                            }
+                                        })
+                                    }
+                                }
+                            },
+                            dataLabels: {
+                                enabled: true,
+                                formatter: function(val) {
+                                    return val + "%"; // Tampilkan persentase dengan simbol %
+                                }
+                            },
+                            xaxis: {
+                                categories: bidangData.map(item => item.kategori), // Nama bidang
+                                title: {
+                                    text: 'Bidang'
+                                }
+                            },
+                            yaxis: {
+                                title: {
+                                    text: 'Persentase (%)'
+                                },
+                                max: 100 // Skala y-axis maksimum 100%
+                            },
+                            fill: {
+                                type: 'solid', // Tidak ada gradient, gunakan warna solid
+                            }
+                        };
+
+                        // Render chart
+                        var chart = new ApexCharts(document.querySelector("#chart_subtopik"), options);
+                        chart.render();
+                    } else {
+                        alert('Gagal mengambil data: ' + response.message);
+                    }
+                },
+                error: function(xhr) {
+                    alert('Terjadi kesalahan saat mengambil data');
+                }
             });
+
+            function estimasiPerbidang(bidangData) {
+                // Urutkan data berdasarkan persen_benar dari yang terendah
+                bidangData.sort((a, b) => a.persen_benar - b.persen_benar);
+
+                let html = '';
+
+                bidangData.forEach(item => {
+                    // Tentukan warna berdasarkan persen_benar
+                    const warna = item.persen_benar < 60
+                        ? '#FF6666' // Merah
+                        : item.persen_benar < 80
+                            ? '#FFA500' // Oranye
+                            : '#66CC66'; // Hijau
+
+                    // Tambahkan HTML
+                    html += `
+                        <span class="d-inline-block col-3" style="color: ${warna}; display: inline-block; width: 100%;">
+                            ${item.kategori} : ${item.persen_benar}%
+                        </span>
+                    `;
+                });
+
+                // Masukkan HTML ke dalam elemen dengan ID estimasiPerbidang
+                document.getElementById('estimasiPerbidang').innerHTML = html;
+            }
+
+
         });
-    }
-
-    // Fungsi untuk merender data kompetensi
-    function renderKompetensiData(kompetensiData) {
-        $('#kompetensi_container').empty(); // Kosongkan container sebelum merender ulang
-
-        $.each(kompetensiData, function(kompetensi, items) {
-            $.each(items, function(index, item) {
-                const row = `
-                    <div class="row p-2">
-                        <div class="col-3 fw-bold" style="color: #D76B00FF">${item.kompetensi}</div>
-                        <div class="col-2">${item.total_soal}</div>
-                        <div class="col-2">${item.benar}</div>
-                        <div class="col-2">${item.salah}</div>
-                        <div class="col-3">${item.tidak_dikerjakan}</div>
-                    </div>
-                `;
-                $('#kompetensi_container').append(row);
-            });
-        });
-    }
-});
-
-
-
 </script>
 @endsection

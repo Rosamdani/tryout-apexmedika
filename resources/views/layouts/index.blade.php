@@ -10,6 +10,7 @@
     <!-- Tambahkan Bootstrap CSS -->
     @include('layouts.header')
     @yield('style')
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet">
 </head>
 
 <body style="background: #e5e5e5">
@@ -45,6 +46,26 @@
         }
     </script>
     @yield('script')
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            @if(session('success'))
+                toastr.success("{{ session('success') }}", "Sukses", {timeOut: 5000});
+            @endif
+
+            @if(session('error'))
+                toastr.error("{{ session('error') }}", "Kesalahan", {timeOut: 5000});
+            @endif
+
+            @if(session('info'))
+                toastr.info("{{ session('info') }}", "Info", {timeOut: 5000});
+            @endif
+
+            @if(session('warning'))
+                toastr.warning("{{ session('warning') }}", "Peringatan", {timeOut: 5000});
+            @endif
+        });
+    </script>
 </body>
 
 </html>
