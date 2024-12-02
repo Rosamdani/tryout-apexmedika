@@ -56,17 +56,17 @@
                                 class="align-middle p-2 {{ $rank->user_id == Auth::user()->id ? 'alternative-background' : ''}}">
                                 <p class="primary-text">{{ strtoupper($rank->status_lulus) }}</p>
                             </td>
-                            @if($rank->rank == 1 && $rank->status_lulus == 'lulus')
+                            @if($rank->rank == 1 && $rank->status_lulus == 'Lulus')
                             <td
                                 class="align-middle p-2 {{ $rank->user_id == Auth::user()->id ? 'alternative-background' : ''}}">
                                 <h3 class="primary-text">🏆</h3>
                             </td>
-                            @elseif ($rank->rank == 2 && $rank->status_lulus == 'lulus')
+                            @elseif ($rank->rank == 2 && $rank->status_lulus == 'Lulus')
                             <td
                                 class="align-middle p-2 {{ $rank->user_id == Auth::user()->id ? 'alternative-background' : ''}}">
                                 <h3 class="primary-text">🥈</h3>
                             </td>
-                            @elseif ($rank->rank == 3 && $rank->status_lulus == 'lulus')
+                            @elseif ($rank->rank == 3 && $rank->status_lulus == 'Lulus')
                             <td
                                 class="align-middle p-2 {{ $rank->user_id == Auth::user()->id ? 'alternative-background' : ''}}">
                                 <h3 class="primary-text">🥉</h3>
