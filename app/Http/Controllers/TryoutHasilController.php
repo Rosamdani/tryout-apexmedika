@@ -60,6 +60,16 @@ class TryoutHasilController extends Controller
         return view('tryouts.perangkingan', compact('userTryout', 'allUserRank', 'totalUser', 'userTryoutRank', 'status_lulus'));
     }
 
+    public function pembahasan($id)
+    {
+        $userTryout = UserTryouts::where('tryout_id', $id)->where('user_id', Auth::id())->first();
+        if ($userTryout->status != 'finished') {
+            abort(404);
+        }
+
+        return view('tryouts.pembahasan', compact('userTryout'));
+    }
+
     public function getKompetensiAnswer(Request $request)
     {
         try {

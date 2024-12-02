@@ -64,6 +64,8 @@ class QuestionRelationManager extends RelationManager
                     ->required(),
                 Forms\Components\RichEditor::make('soal')
                     ->required()
+                    ->fileAttachmentsDirectory('attachments')
+                    ->fileAttachmentsVisibility('public')
                     ->columnSpanFull(),
                 Forms\Components\TextInput::make('pilihan_a')->label('Pilihan A')
                     ->required()

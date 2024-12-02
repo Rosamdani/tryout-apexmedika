@@ -104,6 +104,7 @@
     </div>
     <div class="col-6 col-md-6 col-lg-3 mb-2">
         <div class="card h-100 shadow-sm"
+            onclick="window.location.href='{{ route('tryouts.hasil.pembahasan', ['id' => $userTryout->tryout_id]) }}'"
             style="border: none; background: linear-gradient(120deg, #AE1212FF 0%, #A01010FF 100%)">
             <div class="card-body" style="cursor: pointer;">
                 <div class="d-flex justify-content-between align-items-start">

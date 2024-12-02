@@ -24,6 +24,7 @@ Route::middleware([AuthMiddleware::class])->post('/tryout/pause', [App\Http\Cont
 Route::middleware([AuthMiddleware::class])->post('/tryout/getResult', [App\Http\Controllers\TryoutHasilController::class, 'getKompetensiAnswer'])->name('tryout.getResult');
 Route::middleware([AuthMiddleware::class])->get('/tryout/hasil/{id}', [App\Http\Controllers\TryoutHasilController::class, 'index'])->name('tryouts.hasil.index');
 Route::middleware([AuthMiddleware::class])->get('/tryout/perangkingan/{id}', [App\Http\Controllers\TryoutHasilController::class, 'perangkingan'])->name('tryouts.hasil.perangkinan');
+Route::middleware([AuthMiddleware::class])->get('/tryout/pembahasan/{id}', [App\Http\Controllers\TryoutHasilController::class, 'pembahasan'])->name('tryouts.hasil.pembahasan');
 Route::middleware([AuthMiddleware::class])->post('/tryout/getChartSubTopik', [App\Http\Controllers\TryoutHasilController::class, 'persentaseBidang'])->name('tryouts.hasil.getChartSubTopik');
 Route::middleware([AuthMiddleware::class])->post('/testimoni/store', [App\Http\Controllers\TestimoniController::class, 'store'])->name('testimoni.store');
 
